@@ -1,2 +1,2 @@
-# physic_engine
+# physics_engine
 2D physics engine
