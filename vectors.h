@@ -19,6 +19,9 @@ struct Vector {
     friend Vector& operator+=(Vector& a, Vector& b);
 	friend Vector& operator-(Vector& a, Vector& b);
 	friend Vector& operator*(double scalar, Vector& a);
+	friend Vector& operator-(Vector& a, Vector& b);
+	friend Vector& operator*(double scalar, Vector& a);
+    friend Vector& operator*(Vector& a, Vector& b);
 	friend ostream& operator<<(ostream& os, Vector& vec);
 };
 
