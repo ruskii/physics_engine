@@ -1,0 +1,4 @@
+/opt/clion-2017.3.1/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/aapogodin/CLionProjects/Physics
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/aapogodin/CLionProjects/Physics/cmake-build-debug
