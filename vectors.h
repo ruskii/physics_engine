@@ -15,14 +15,6 @@ struct Vector {
     double x_cmp = head->x - tail->x;
     double y_cmp = head->y - tail->y;
     double mag = sqrt(pow(x_cmp, 2) + pow(y_cmp, 2));       // pyth theorem to get magnitude
-	friend Vector& operator+(Vector& a, Vector& b);
-    friend Vector& operator+=(Vector& a, Vector& b);
-	friend Vector& operator-(Vector& a, Vector& b);
-	friend Vector& operator*(double scalar, Vector& a);
-	friend Vector& operator-(Vector& a, Vector& b);
-	friend Vector& operator*(double scalar, Vector& a);
-    friend Vector& operator*(Vector& a, Vector& b);
-	friend ostream& operator<<(ostream& os, Vector& vec);
 };
 
 double get_mag(double x, double y) {
