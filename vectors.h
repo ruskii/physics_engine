@@ -15,11 +15,6 @@ struct Vector {
     double x_cmp = head->x - tail->x;
     double y_cmp = head->y - tail->y;
     double mag = sqrt(pow(x_cmp, 2) + pow(y_cmp, 2));       // pyth theorem to get magnitude
-	friend Vector& operator+(Vector& a, Vector& b);
-	friend Vector& operator-(Vector& a, Vector& b);
-	friend Vector& operator*(double scalar, Vector& a);
-    friend Vector& operator*(Vector& a, Vector& b);
-	friend ostream& operator<<(ostream& os, Vector& vec);
 };
 
 double get_mag(double x, double y) {
@@ -47,16 +42,19 @@ Vector& operator-(Vector& a, Vector& b) {
     return diff;
 }
 
+Vector& operator-=(Vector& a, Vector& b) {
+    auto final_point = new Point(a.head->x - b.x_cmp, a.head->y - b.y_cmp);
+    auto b2 = new Vector(a.head, final_point);
+    a = Vector(a.tail, b2->head);
+    return a;
+}
+
 Vector& operator*(double scalar, Vector& a) {   // multiply vector by some scalar
     double nx = a.tail->x + scalar*a.x_cmp;
     double ny = a.tail->y + scalar*a.y_cmp;
     auto vp = new Point(nx, ny);
     Vector product = Vector(a.tail, vp);
     return product;
-}
-
-Vector& operator*(Vector& a, Vector& b) {
-
 }
 
 ostream& operator<<(ostream& os, Vector& vec) {

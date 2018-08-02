@@ -1,0 +1,12 @@
+for impulse vector:
+	-we are taking dot product of normal (a unit vector) and the relative velocity
+		-normal is unit vector of b.pos - a.pos
+		-relative velocity is b.vel - a.vel
+
+	-multiply the resulting velocity vector by restitution scalar (attribute of RigidBody) to get final impulse vector
+
+	-to get velocity of each object take impulse and divide it by object mass and add it to existing object velocity
+		A.vel -= (1 / mass) * impulse
+		B.vel += (1 / mass) * impulse
+		(we are using (1 / mass) as a scalar and using the * operator to multiply by impulse vector)
+	
