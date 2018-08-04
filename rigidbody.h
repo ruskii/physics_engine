@@ -5,6 +5,7 @@
 #include <vector>
 #include "vectors.h"
 #include "point.h"
+#include <typeinfo>
 
 // To detect collisions by defining rigid bodies for 2D shapes by using "Is-A" relationship
 
@@ -12,6 +13,7 @@ struct RigidBody{
     RigidBody() : mass(1), pos(new Point), vel(new Vector), accel(new Vector) {}
     RigidBody(double m, Point *p, Vector *v, Vector *a) : mass(m), pos(p), vel(v), accel(a) {}
     double mass;
+    double restitution = 0.5;//bouncyness
     Point *pos;
     Vector *vel;
     Vector *accel;
@@ -20,7 +22,7 @@ struct RigidBody{
 
     void set_vel(Vector *v) {vel = v;}
 
-    void set_accel(Vector f) {  // returns acceleration from applying force to particle
+    void set_accel() {  // returns acceleration from applying force to particle //parameter Vector f removed**
         auto net_force = get_netf();
         auto acc_head = new Point(net_force.x_cmp / mass, net_force.y_cmp / mass);
         accel = new Vector(net_force.tail, acc_head);
@@ -128,7 +130,8 @@ void apply_force(RigidBody& rb, Vector f) {
     rb.set_accel(rb.get_netf());
 }
 
-void move(RigidBody& rb, float dt) {
+
+void move(RigidBody& rb, double dt) {
     rb.vel->x_cmp += rb.accel->x_cmp * dt;
     rb.vel->y_cmp += rb.accel->y_cmp * dt;
     rb.vel->mag = get_mag(rb.vel->x_cmp, rb.vel->y_cmp);
@@ -143,3 +146,52 @@ ostream& operator<<(ostream& os, RigidBody& rbd) {
         return os;
 }
 
+//functions for collision resolution
+
+void resolveCollision(RigidBody& rbdA, RigidBody& rbdB) {
+    //relative velocity
+    Vector relativeVel = rbdB.vel - rbdA.vel;
+    Vector normal = get_normal(rdbA, rdbB);
+
+    // calculate dot product for relative velocity vector and normal vector
+    // and get magnitude of vector
+    double mag = relativeVel * normal;
+
+    double bounce;//min resitution between rbdA and rbdB
+    bounce = min(rbdA.resitution, rbdB.resitution);
+
+    double j = -(1 + bounce) * mag;
+    j /= 1/rbdA.mass + 1/rbdB.mass;
+
+    Vector impulse = j * normal;
+    rbdA.vel -= 1/rbdA.mass * impulse;
+    rbdB.vel += 1/rbdB.mass * impulse;
+}
+
+Vector get_normal(RigidBody rbdA, RigidBody rdbB){
+    if(typeid(rbdA).name() == "Circle" && typeid(rbdB).name() == "Circle"){
+        //different between A and B
+        Vector dif(rbdB->pos,rbdA->pos);
+
+            //avoid divide by 0
+            if(dif.mag != 0){
+                //converting the difference into a unit vector as normal
+                return (1/dif.mag) * dif; 
+            }
+
+            //if length is indeed 0, replace with this
+            else{
+                return Vector(1,0);
+            }
+    }
+
+    // TODO: Implement this
+    else if(typeid(rbdA).name() == "Rectangle" && typeid(rbdB).name() == "Rectangle"){
+
+    }
+
+    else if(typeid(rbdA).name() == "Circle" && typeid(rbdA).name() == "Rectangle" || typeid(rbdB).name() == "Rectangle" && typeid(rbdA).name() == "Circle"){
+        
+    }
+}
+}
