@@ -5,6 +5,7 @@
 #include <vector>
 #include "vectors.h"
 #include "point.h"
+#include <typeinfo>
 
 // To detect collisions by defining rigid bodies for 2D shapes by using "Is-A" relationship
 
@@ -12,6 +13,7 @@ struct RigidBody{
     RigidBody() : mass(1), pos(new Point), vel(new Vector), accel(new Vector) {}
     RigidBody(double m, Point *p, Vector *v, Vector *a) : mass(m), pos(p), vel(v), accel(a) {}
     double mass;
+    double restitution = 0.5;//bounciness
     Point *pos;
     Vector *vel;
     Vector *accel;
@@ -20,7 +22,7 @@ struct RigidBody{
 
     void set_vel(Vector *v) {vel = v;}
 
-    void set_accel(Vector f) {  // returns acceleration from applying force to particle
+    void set_accel() {  // returns acceleration from applying force to particle //parameter Vector f removed**
         auto net_force = get_netf();
         auto acc_head = new Point(net_force.x_cmp / mass, net_force.y_cmp / mass);
         accel = new Vector(net_force.tail, acc_head);
@@ -36,6 +38,7 @@ struct RigidBody{
     }
 
     bool collides_with(RigidBody& B) {
+        cout << "rigid/n";
         return pos->x == B.pos->x and pos->y == B.pos->y;
     }
 };
@@ -59,9 +62,14 @@ struct Rectangle : public RigidBody {
     bool collides_with(Rectangle& B) {
         set_corners();
         B.set_corners();
-        if (max->x < B.min->x or min->x > B.max->x)
+        /*if (max->x < B.min->x or min->x > B.max->x)
             return false;
-        return !(max->y < B.min->y or min->y > B.max->y);
+        return !(max->y < B.min->y or min->y > B.max->y);*/
+        cout << "rec/n";
+        if(max->x < B.min->x or min->x > B.max->x) return true;
+        if(max->y < B.min->y or min->y > B.max->y) return true;
+
+        return false;
     }
 /*
     bool collides_with(Circle& B) {     // TODO: remove code duplication with CvR collisions
@@ -94,6 +102,7 @@ struct Circle : public RigidBody {
     double radius;  // radius of circle
 
     bool collides_with(Circle& B) {     // circle collides with circle
+        cout << "circ/n";
         double r = radius + B.radius;
         r *= r;
         double y = pow(pos->x - B.pos->x, 2);
@@ -102,6 +111,7 @@ struct Circle : public RigidBody {
     }
 
     bool collides_with(Rectangle& B) {  // circle collides with rectangle
+        cout << "circ/n";
         Rectangle aabb(2 * radius, 2 * radius, RigidBody::mass, RigidBody::pos, RigidBody::vel, RigidBody::accel);
 
         if (!aabb.collides_with(B)) return false;    // false if aabb of circle doesn't collide with rectangle
@@ -125,10 +135,11 @@ struct Circle : public RigidBody {
 
 void apply_force(RigidBody& rb, Vector f) {
     rb.forces.push_back(f);
-    rb.set_accel(rb.get_netf());
+    rb.set_accel(); //accepts no args
 }
 
-void move(RigidBody& rb, float dt) {
+
+void move(RigidBody& rb, double dt) {
     rb.vel->x_cmp += rb.accel->x_cmp * dt;
     rb.vel->y_cmp += rb.accel->y_cmp * dt;
     rb.vel->mag = get_mag(rb.vel->x_cmp, rb.vel->y_cmp);
@@ -143,3 +154,134 @@ ostream& operator<<(ostream& os, RigidBody& rbd) {
         return os;
 }
 
+//functions for collision resolution
+
+Vector get_normal(RigidBody& rbdA, RigidBody& rbdB) {
+    if(typeid(rbdA).name() == "Circle" && typeid(rbdB).name() == "Circle") {
+        //different between A and B
+        Vector dif(rbdB.pos, rbdA.pos);
+
+        //avoid divide by 0
+        if (dif.mag != 0) {
+            //converting the difference into a unit vector as normal
+            return (1 / dif.mag) * dif;
+        } else {  //if length is indeed 0, replace with this
+            Point *a = new Point(1, 0);
+            Point *b = new Point(0, 0);
+            return Vector(a, b);
+        }
+    }
+}
+
+// BROKE THESE INTO 4 OVERLOAD FUNCTIONS
+
+Vector get_normal(Rectangle &rbdA, Rectangle &rbdB) {
+    // Create a vector that points from rdbA to rdbB
+    Vector ab(rbdA.pos, rbdB.pos);
+
+    // this next few lines are to find the axis that has the least penetration
+    // first, calculate x axis
+    double aXExtent = (rbdA.max->x - rbdA.min->x) / 2;
+    double bXExtent = (rbdB.max->x - rbdB.min->x) / 2;
+
+    double aYExtent = (rbdA.max->y - rbdA.min->y) / 2;
+    double bYExtent = (rbdB.max->y - rbdB.min->y) / 2;
+
+    double xAxis = aXExtent + bXExtent - abs(ab.x_cmp);
+    double yAxis = aYExtent + bYExtent - abs(ab.y_cmp);
+
+    Point *a;
+    Point *b;
+// i have 200 iq today vincent agrees
+    if (xAxis >= 0) {
+        if (yAxis > 0) {
+            if (xAxis > yAxis) {
+                if (ab.x_cmp < 0) {
+                    return Vector(a = new Point(0,0), b = new Point(0, -1)); //+5IQ
+                    // :^)
+                }
+                else {
+                    a = new Point(0, 0); //-1 IQ
+                    b = new Point(0, 1); // -1 IQ
+                    return Vector(a, b);
+                    // :^)
+                }
+            }
+            else {
+                if (ab.y_cmp < 0) {
+                    a = new Point(0, 0); // -1 IQ
+                    b = new Point(-1, 0); // -1 IQ
+                    return Vector(a, b);
+                    // :^)
+                }
+                else {
+                    a = new Point(0, 0); // -1 IQ
+                    b = new Point(1, 0); // -1 IQ
+                    return Vector(a, b);
+                    // :^)
+                }
+            }
+        }
+    }
+}
+
+double clamp(double num, double min, double max){
+    if(num < min){
+        return min;
+    }
+    else if(num > max){
+        return max;
+    }
+    else
+        return num;
+}
+
+
+Vector get_normal(Rectangle &rbdA, Circle &rbdB) {
+/* TO BE CONTINUED. . ..
+ *
+ *
+    // Create a vector that points from rdbA to rdbB
+    Vector ab(rbdA.pos, rbdB.pos);
+    Vector closest = ab;
+
+    // for rectangle
+    double xExtent = (rbdA.max->x, rbdA.min->x) / 2;
+    double yExtent = (rbdA.max->y, rbdA.min->y) / 2;
+
+    closest.x_cmp = clamp(-xExtent, xExtent, closest.x_cmp);
+    closest.y_cmp = clamp(-yExtent, yExtent, closest.y_cmp);
+    // To understand clamp https://www.geeksforgeeks.org/stdclamp-in-cpp-17/
+*/
+}
+
+Vector get_normal(Circle &rbdA, Rectangle &rbdB) {
+    return get_normal(rbdB, rbdA); //+10 IQ
+}
+
+
+
+
+/////////////////////////////////
+// NEED TO RESOLVE MORE ERRORS //
+/////////////////////////////////
+
+/*
+void resolveCollision(RigidBody &rbdA, RigidBody &rbdB, Vector normal) {
+    //relative velocity
+    Vector relativeVel = rbdB.vel-rbdA.vel;
+
+    // calculate dot product for relative velocity vector and normal vector
+    // and get magnitude of vector
+    double mag = relativeVel * normal;
+
+    double bounce;//min restitution between rbdA and rbdB
+    bounce = min(rbdA.restitution, rbdB.restitution);
+
+    double j = -(1 + bounce) * mag;
+    j /= 1/rbdA.mass + 1/rbdB.mass;
+
+    Vector impulse = j * normal;
+    rbdA.vel = rbdA.vel - (1/rbdA.mass * impulse);
+    rbdB.vel += 1/rbdB.mass * impulse;
+}*/
