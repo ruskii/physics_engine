@@ -4,6 +4,7 @@
 #include <vector>
 #include <unistd.h>
 #include "point.h"
+
 using namespace std;
 
 struct Vector {

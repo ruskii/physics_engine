@@ -1,45 +1,39 @@
 #include <iostream>
 #include <vector>
-#include "rigidbody.h"
+#include "world.h"
+
 using namespace std;
 
-template <typename object>
-void run_sim(float sim_time, float dt, vector<object> rbds) {
+void run_sim(Simulation s) {
     float current_time = 0;
-    while (current_time < sim_time) {
-        for (auto &rbd : rbds) {
-            cout << rbd << endl;
-            for (auto &other : rbds) {      // checking if object collides with other objects
+    while (current_time < s.sim_time) {
+        for (auto &rbd : s.rbds) {
+            cout << *rbd << endl;
+            for (auto &other : s.rbds) {      // checking if object collides with other objects
                 if (&other == &rbd) continue;   // find more efficient way than for loop
 
-                if (rbd.collides_with(other))
+                if (scan_collision(rbd, other))
                     cout << "COLLISION DETECTED\n" << endl;
             }
-            move(rbd, dt);
+            move(*rbd, s.dt);
         }
         cout << "----------------------------------" << endl;
-        current_time += dt;
-        usleep(dt * 1000);
+        current_time += s.dt;
+        usleep(s.dt * 1000);
     }
 }
 
 int main() {
-    Vector v1(new Point, new Point(1, 0));
-    Vector v2(new Point, new Point(3, 0));
+    auto a = new Circle;
+    a->set_vel(new Vector(new Point, new Point(1, 0)));
 
-    cout << v1 << "\n" << v2 << endl;
-    v1 -= v2;
+    auto b = new Circle(1, 1, new Point(5, 0), new Vector, new Vector);
+    auto c = new Rectangle(2, 2, 1, new Point(10, 0), new Vector, new Vector);
 
-    cout << v1 << endl;
+    vector<RigidBody*> rbds = {a, b, c};
+    Simulation sim(rbds, 20, 1);
 
-    Circle a;
-    Vector force(new Point, new Point(1, 0));
-    apply_force(a, force);
-
-    Rectangle b(2, 2, 1, new Point(3, 0), new Vector, new Vector);
-
-    vector<RigidBody> rbds = {a, b};
-    run_sim(20, 1, rbds);
+    run_sim(sim);
 
     return 0;
 }
