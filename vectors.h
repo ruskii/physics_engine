@@ -7,6 +7,15 @@
 
 using namespace std;
 
+// Pythagorean theorem
+double get_mag(double x, double y) {
+    return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+/* Mathematical vector, contains 2 points - tail and head
+   Consists of x and y components, calculated by subtracting tail from head
+   Magnitude calculated by pythagorean theorem
+*/
 struct Vector {
     Vector() : tail(new Point), head(new Point), x_cmp(0), y_cmp(0), mag(0) {}
     Vector(Point *t, Point *h) : tail(t), head(h) {}
@@ -15,12 +24,8 @@ struct Vector {
     Point *head;
     double x_cmp = head->x - tail->x;
     double y_cmp = head->y - tail->y;
-    double mag = sqrt(pow(x_cmp, 2) + pow(y_cmp, 2));       // pyth theorem to get magnitude
+    double mag = get_mag(x_cmp, y_cmp);
 };
-
-double get_mag(double x, double y) {
-    return sqrt(pow(x, 2) + pow(y, 2));
-}
 
 Vector& operator+(Vector& a, Vector& b) {       // vector addition
     auto final_point = new Point(a.head->x + b.x_cmp, a.head->y + b.y_cmp);      // head of vector resulting from addition
@@ -29,6 +34,7 @@ Vector& operator+(Vector& a, Vector& b) {       // vector addition
     return sum;
 }
 
+// using += to increment an already existing vector	e.g: vec A += vec B
 Vector& operator+=(Vector& a, Vector& b) {
     auto final_point = new Point(a.head->x + b.x_cmp, a.head->y + b.y_cmp);
     auto b2 = new Vector(a.head, final_point);
@@ -58,6 +64,7 @@ Vector& operator*(double scalar, Vector& a) {   // multiply vector by some scala
     return product;
 }
 
+// Outputs vector x and y components as well as its magnitude
 ostream& operator<<(ostream& os, Vector& vec) {
     string op = "x: " + to_string(vec.head->x) + " y: " + to_string(vec.head->y) \
     + "\nmag: " + to_string(vec.mag);

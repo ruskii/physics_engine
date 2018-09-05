@@ -4,6 +4,9 @@
 
 using namespace std;
 
+/* While simulation run time hasn't been reached, iterate through all RigidBodies
+   and check for a collision with all other RigidBodies, and update positions as necessary
+*/
 void run_sim(Simulation s) {
     float current_time = 0;
     while (current_time < s.sim_time) {

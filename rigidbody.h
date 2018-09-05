@@ -8,11 +8,19 @@
 #include "point.h"
 #include <typeinfo>
 
-// To detect collisions by defining rigid bodies for 2D shapes by using "Is-A" relationship
+/*
+This will function as a base for all of our shapes.
+Rigidbody serves as an abstract class for Circle and Rectangle, making it easier to 
+detect collisions between the two different objects.
+
+Also includes some standalone movement functions and a function for determining
+collision type - scan_collision(RigidBody& a, RigidBody& b)
+*/
 
 struct Rectangle;
 struct Circle;
 
+// includes all the necessary attributes and virtual functions for our shapes
 struct RigidBody{
     RigidBody() : mass(1), pos(new Point), vel(new Vector), accel(new Vector) {}
     RigidBody(double m, Point *p, Vector *v, Vector *a) : mass(m), pos(p), vel(v), accel(a) {}
@@ -25,11 +33,12 @@ struct RigidBody{
     void set_vel(Vector *v);
     void set_accel();
     Vector get_netf();
-    virtual bool collides_with(Rectangle *r) = 0;
+    virtual bool collides_with(Rectangle *r) = 0;	// pure virtual functions are overridden in Rectangle and Circle
     virtual bool collides_with(Circle *c) = 0;
 };
 
-/* Rigid body of a 2D box (rectangle, square)
+/* Rigid body of a 2D box
+   Must call base struct constructor RigidBody
    Defined by a the length and width and two points, min and max */
 struct Rectangle : public RigidBody {
     Rectangle(): RigidBody(), length(1), width (1) {set_corners();};
@@ -45,6 +54,7 @@ struct Rectangle : public RigidBody {
 };
 
 /* Rigid body of a 2D circle
+   Must call base struct constructor RigidBody
    Defined by a point, from vectors.h, and a radius */
 struct Circle : public RigidBody {
     Circle(): RigidBody(), radius(1) {}
@@ -54,11 +64,16 @@ struct Circle : public RigidBody {
     bool collides_with(Circle *c) override;
 };
 
+/* Takes a force and applies it to given RigidBody
+   Force is added to RigidBody's container of forces
+   Net acceleration is recalculated */
 void apply_force(RigidBody& rb, Vector f) {
     rb.forces.push_back(f);
     rb.set_accel();
 }
 
+/* Update velocity components and magnitude based off of acceleration
+   Update position off of velocity components */
 void move(RigidBody& rb, float dt) {
     rb.vel->x_cmp += rb.accel->x_cmp * dt;
     rb.vel->y_cmp += rb.accel->y_cmp * dt;
@@ -67,6 +82,9 @@ void move(RigidBody& rb, float dt) {
     rb.pos->y += rb.vel->y_cmp * dt;
 }
 
+/* Determine collision type by dynamically casting RigidBody b to Rectangle
+   If b is not a Rectangle, dynamic cast will return a nullptr, which we then dynamic cast to a circle
+   If b is a rectangle, call rectangle collision function by referencing a, which can be a circle or a rectangle */
 bool scan_collision(RigidBody *a, RigidBody *b) {
     auto b_rect = dynamic_cast<Rectangle*>(b);
 
@@ -78,6 +96,8 @@ bool scan_collision(RigidBody *a, RigidBody *b) {
     }
 }
 
+/* Output RigidBody position and velocity components
+*/
 ostream& operator<<(ostream& os, RigidBody& rbd) {
         string op = "pos[x: " + to_string(rbd.pos->x) + ", y: " + to_string(rbd.pos->y) + "]\nvel[x: " + \
         to_string(rbd.vel->x_cmp) + ", y: " + to_string(rbd.vel->y_cmp) + ", abs: " + to_string(rbd.vel->mag) + "]";

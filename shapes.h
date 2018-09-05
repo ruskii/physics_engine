@@ -5,12 +5,16 @@
 
 void RigidBody::set_vel(Vector *v) {vel = v;}
 
-void RigidBody::set_accel() {  // returns acceleration from applying force to particle
+// recalculates RigidBody acceleration after a force has been applied
+void RigidBody::set_accel() {
     auto net_force = get_netf();
     auto acc_head = new Point(net_force.x_cmp / mass, net_force.y_cmp / mass);
     accel = new Vector(net_force.tail, acc_head);
 }
 
+/* Iterates through all forces acting on a RigidBody and 
+   sums them all up to produce net force vector
+*/
 Vector RigidBody::get_netf() {
     if (forces.empty()) return {new Point, new Point};
 
@@ -20,11 +24,14 @@ Vector RigidBody::get_netf() {
     return netf;
 }
 
+// setting bottom left and top right corners of aabb based off its given center
 void Rectangle::set_corners() {
     min = new Point(RigidBody::pos->x - length / 2, RigidBody::pos->y - width / 2);
     max = new Point(RigidBody::pos->x + length / 2, RigidBody::pos->y + width / 2);
 }
 
+/* Checks if aabb are intersecting by comparing positions of mins and maxs of the 2 boxes
+*/
 bool Rectangle::collides_with(Rectangle *r) {
     set_corners();
     r->set_corners();
@@ -33,6 +40,10 @@ bool Rectangle::collides_with(Rectangle *r) {
     return !(max->y < r->min->y or min->y > r->max->y);
 }
 
+/* Here we create an aabb around the circle we are checking a collision against
+   If rectangle is not colliding with the aabb, return false
+   Else we conduct a second check to see if the corners of the rectangle penetrate the circle
+*/
 bool Rectangle::collides_with(Circle *c) {
     auto aabb = new Rectangle(2 * c->radius, 2 * c->radius, c->mass, c->pos, c->vel, c->accel);
 
@@ -74,6 +85,8 @@ bool Circle::collides_with(Rectangle *r) {
     }
 }
 
+/* Checking if radius's intersect
+*/
 bool Circle::collides_with(Circle *c) {
     double r = radius + c->radius;
     r *= r;
