@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <cmath>
 #include <vector>
-#include "vectors.h"
+#include "vectors.cpp"
 #include "point.h"
 #include <typeinfo>
 
