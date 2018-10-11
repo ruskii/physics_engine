@@ -99,8 +99,8 @@ bool scan_collision(RigidBody *a, RigidBody *b) {
 /* Output RigidBody position and velocity components
 */
 ostream& operator<<(ostream& os, RigidBody& rbd) {
-        string op = "pos[x: " + to_string(rbd.pos->x) + ", y: " + to_string(rbd.pos->y) + "]\nvel[x: " + \
-        to_string(rbd.vel->x_cmp) + ", y: " + to_string(rbd.vel->y_cmp) + ", abs: " + to_string(rbd.vel->mag) + "]";
-        os << op << endl;
-        return os;
+    string op = "pos[x: " + to_string(rbd.pos->x) + ", y: " + to_string(rbd.pos->y) + "]\nvel[x: " + \
+    to_string(rbd.vel->x_cmp) + ", y: " + to_string(rbd.vel->y_cmp) + ", abs: " + to_string(rbd.vel->mag) + "]";
+    os << op << endl;
+    return os;
 }
