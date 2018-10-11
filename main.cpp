@@ -12,8 +12,8 @@ void run_sim(Simulation s) {
     while (current_time < s.sim_time) {
         for (auto &rbd : s.rbds) {
             cout << *rbd << endl;
-            for (auto &other : s.rbds) {      // checking if object collides with other objects
-                if (&other == &rbd) continue;   // find more efficient way than for loop
+            for (auto &other : s.rbds) {
+                if (&other == &rbd) continue;
 
                 if (scan_collision(rbd, other))
                     cout << "COLLISION DETECTED\n" << endl;
