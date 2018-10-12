@@ -1,11 +1,9 @@
-#ifndef PHYSICS_SHAPES_H
-#define PHYSICS_SHAPES_H
+#pragma once
 
 #include "rigidbody.h"
 
 void RigidBody::set_vel(Vector *v) {vel = v;}
 
-// recalculates RigidBody acceleration after a force has been applied
 void RigidBody::set_accel() {
     auto net_force = get_netf();
     auto acc_head = new Point(net_force.x_cmp / mass, net_force.y_cmp / mass);
@@ -21,14 +19,11 @@ Vector RigidBody::get_netf() {
     return netf;
 }
 
-// setting bottom left and top right corners of aabb based off its given center
 void Rectangle::set_corners() {
     min = new Point(RigidBody::pos->x - length / 2, RigidBody::pos->y - width / 2);
     max = new Point(RigidBody::pos->x + length / 2, RigidBody::pos->y + width / 2);
 }
 
-/* Checks if aabb are intersecting by comparing positions of mins and maxs of the 2 boxes
-*/
 bool Rectangle::collides_with(Rectangle *r) {
     set_corners();
     r->set_corners();
@@ -60,14 +55,13 @@ bool Rectangle::collides_with(Circle *c) {
 bool Circle::collides_with(Rectangle *r) {
     auto aabb = new Rectangle(2 * radius, 2 * radius, RigidBody::mass, RigidBody::pos, RigidBody::vel, RigidBody::accel);
 
-    if (!aabb->collides_with(r)) return false;    // false if aabb of circle doesn't collide with rectangle
+    if (!aabb->collides_with(r)) return false;
 
     if (RigidBody::pos->x < r->max->x and RigidBody::pos->x > r->min->x)
         return true;
     if (RigidBody::pos->y < r->max->y and RigidBody::pos->y > r->min->y)
         return true;
 
-    // corners = {bot_left, top_right, top_left, bot_right}
     vector<Point*> corners = {r->min, r->max, new Point(r->min->x, r->max->y), new Point(r->max->x, r->min->y)};
 
     for (auto corner : corners) {
@@ -110,7 +104,6 @@ bool scan_collision(RigidBody *a, RigidBody *b) {
     }
 }
 
-
 ostream& operator<<(ostream& os, RigidBody& rbd) {
     string op = "pos[x: " + to_string(rbd.pos->x) + ", y: " + to_string(rbd.pos->y) + "]\nvel[x: " + \
     to_string(rbd.vel->x_cmp) + ", y: " + to_string(rbd.vel->y_cmp) + ", abs: " + to_string(rbd.vel->mag) + "]";
@@ -118,5 +111,3 @@ ostream& operator<<(ostream& os, RigidBody& rbd) {
     return os;
 }
 
-
-#endif //PHYSICS_SHAPES_H
