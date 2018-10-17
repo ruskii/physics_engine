@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include "vectors.h"
 #include "rigidbody.h"
 
 using namespace std;
@@ -34,7 +33,7 @@ int main() {
     auto b = new Circle(1, 1, new Point(5, 0), new Vector, new Vector);
     auto c = new Rectangle(2, 2, 1, new Point(10, 0), new Vector, new Vector);
 
-    std::vector<RigidBody*> objects = {a, b, c};
+    vector<RigidBody*> objects = {a, b, c};
 
     run_sim(objects, 20, 1);
 

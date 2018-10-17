@@ -1,7 +1,3 @@
-//
-// Created by aapogodin on 7/22/18.
-//
-
 #ifndef PHYSICS_POINT_H
 #define PHYSICS_POINT_H
 
