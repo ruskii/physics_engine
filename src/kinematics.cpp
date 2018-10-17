@@ -1,5 +1,3 @@
-#pragma once
-
 #include "rigidbody.h"
 
 void RigidBody::set_vel(Vector *v) {vel = v;}
@@ -42,7 +40,7 @@ bool Rectangle::collides_with(Circle *c) {
     if (c->pos->y < max->y and c->pos->y > min->y)
         return true;
 
-    vector<Point*> corners = {min, max, new Point(min->x, max->y), new Point(max->x, min->y)};
+    std::vector<Point*> corners = {min, max, new Point(min->x, max->y), new Point(max->x, min->y)};
 
     for (auto corner : corners) {
         double y = pow(pos->x - corner->x, 2);
@@ -62,7 +60,7 @@ bool Circle::collides_with(Rectangle *r) {
     if (RigidBody::pos->y < r->max->y and RigidBody::pos->y > r->min->y)
         return true;
 
-    vector<Point*> corners = {r->min, r->max, new Point(r->min->x, r->max->y), new Point(r->max->x, r->min->y)};
+    std::vector<Point*> corners = {r->min, r->max, new Point(r->min->x, r->max->y), new Point(r->max->x, r->min->y)};
 
     for (auto corner : corners) {
         double y = pow(RigidBody::pos->x - corner->x, 2);
@@ -104,10 +102,11 @@ bool scan_collision(RigidBody *a, RigidBody *b) {
     }
 }
 
-ostream& operator<<(ostream& os, RigidBody& rbd) {
-    string op = "pos[x: " + to_string(rbd.pos->x) + ", y: " + to_string(rbd.pos->y) + "]\nvel[x: " + \
-    to_string(rbd.vel->x_cmp) + ", y: " + to_string(rbd.vel->y_cmp) + ", abs: " + to_string(rbd.vel->mag) + "]";
-    os << op << endl;
+std::ostream& operator<<(std::ostream& os, RigidBody& rbd) {
+    std::string op = "pos[x: " + std::to_string(rbd.pos->x) + ", y: " + std::to_string(rbd.pos->y) + "]\nvel[x: " + \
+    std::to_string(rbd.vel->x_cmp) + ", y: " + std::to_string(rbd.vel->y_cmp) + ", abs: " + \
+    std::to_string(rbd.vel->mag) + "]";
+    os << op << std::endl;
     return os;
 }
 

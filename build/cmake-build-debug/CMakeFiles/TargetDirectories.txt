@@ -1,0 +1,3 @@
+/home/aapogodin/CLionProjects/Physics/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/aapogodin/CLionProjects/Physics/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/aapogodin/CLionProjects/Physics/cmake-build-debug/CMakeFiles/Physics.dir

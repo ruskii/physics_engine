@@ -1,0 +1,1 @@
+/home/aapogodin/CLionProjects/Physics/build/CMakeFiles/Physics.dir

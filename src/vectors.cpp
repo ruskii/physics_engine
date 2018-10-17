@@ -1,19 +1,11 @@
-#pragma once
-
 #include <iostream>
 #include <cmath>
-#include <utility>
-#include <vector>
-#include <unistd.h>
-#include "point.h"
+#include "vectors.h"
 
 using namespace std;
 
-double get_mag(double x, double y) {
-    return sqrt(pow(x, 2) + pow(y, 2));
-}
-
-struct Vector {
+/*
+Vector {
     Vector() : tail(new Point), head(new Point), x_cmp(0), y_cmp(0), mag(0) {}
     Vector(Point *t, Point *h) : tail(t), head(h) {}
     ~Vector() = default;
@@ -23,6 +15,11 @@ struct Vector {
     double y_cmp = head->y - tail->y;
     double mag = get_mag(x_cmp, y_cmp);
 };
+*/
+
+double get_mag(double x, double y) {
+    return sqrt(pow(x, 2) + pow(y, 2));
+}
 
 Vector& operator+(Vector& a, Vector& b) {
     auto final_point = new Point(a.head->x + b.x_cmp, a.head->y + b.y_cmp);
