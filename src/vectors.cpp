@@ -4,19 +4,6 @@
 
 using namespace std;
 
-/*
-Vector {
-    Vector() : tail(new Point), head(new Point), x_cmp(0), y_cmp(0), mag(0) {}
-    Vector(Point *t, Point *h) : tail(t), head(h) {}
-    ~Vector() = default;
-    Point *tail;
-    Point *head;
-    double x_cmp = head->x - tail->x;
-    double y_cmp = head->y - tail->y;
-    double mag = get_mag(x_cmp, y_cmp);
-};
-*/
-
 double get_mag(double x, double y) {
     return sqrt(pow(x, 2) + pow(y, 2));
 }
