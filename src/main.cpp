@@ -9,9 +9,11 @@ using namespace std;
 */
 void run_sim(vector<RigidBody*> rbds, int sim_time, int tick) {
     float current_time = 0;
+
     while (current_time < sim_time) {
         for (auto &rbd : rbds) {
             cout << *rbd << endl;
+
             for (auto &other : rbds) {
                 if (&other == &rbd) continue;
 
@@ -20,6 +22,7 @@ void run_sim(vector<RigidBody*> rbds, int sim_time, int tick) {
             }
             move(*rbd, tick);
         }
+
         cout << "----------------------------------" << endl;
         current_time += tick;
         usleep(tick * 1000);

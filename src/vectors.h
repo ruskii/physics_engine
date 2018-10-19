@@ -18,11 +18,11 @@ struct Vector {
     double mag = get_mag(x_cmp, y_cmp);
 };
 
-Vector& operator+(Vector& a, Vector& b);
-Vector& operator+=(Vector& a, Vector& b);
-Vector& operator-(Vector& a, Vector& b);
-Vector& operator-=(Vector& a, Vector& b);
-Vector& operator*(double scalar, Vector &a);
+Vector operator+(Vector& a, Vector& b);
+Vector operator+=(Vector& a, Vector& b);
+Vector operator-(Vector& a, Vector& b);
+Vector operator-=(Vector& a, Vector& b);
+Vector operator*(double scalar, Vector &a);
 std::ostream& operator<<(std::ostream& os, Vector& vec);
 
 #endif

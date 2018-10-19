@@ -1,11 +1,13 @@
 #include "rigidbody.h"
 
+using namespace std;
+
 void RigidBody::set_vel(Vector *v) {vel = v;}
 
 void RigidBody::set_accel() {
     auto net_force = get_netf();
-    auto acc_head = new Point(net_force.x_cmp / mass, net_force.y_cmp / mass);
-    accel = new Vector(net_force.tail, acc_head);
+    auto accel_head = new Point(net_force.x_cmp / mass, net_force.y_cmp / mass);
+    accel = new Vector(net_force.tail, accel_head);
 }
 
 Vector RigidBody::get_netf() {
@@ -40,12 +42,12 @@ bool Rectangle::collides_with(Circle *c) {
     if (c->pos->y < max->y and c->pos->y > min->y)
         return true;
 
-    std::vector<Point*> corners = {min, max, new Point(min->x, max->y), new Point(max->x, min->y)};
+    vector<Point*> corners = {min, max, new Point(min->x, max->y), new Point(max->x, min->y)};
 
     for (auto corner : corners) {
-        double y = pow(pos->x - corner->x, 2);
-        double z = pow(pos->y - corner->y, 2);
-        if (c->radius > (y + z))
+        double xpos_to_corner = pow(pos->x - corner->x, 2);
+        double ypos_to_corner = pow(pos->y - corner->y, 2);
+        if (c->radius > (xpos_to_corner + ypos_to_corner))
             return true;
     }
 }
@@ -60,12 +62,12 @@ bool Circle::collides_with(Rectangle *r) {
     if (RigidBody::pos->y < r->max->y and RigidBody::pos->y > r->min->y)
         return true;
 
-    std::vector<Point*> corners = {r->min, r->max, new Point(r->min->x, r->max->y), new Point(r->max->x, r->min->y)};
+    vector<Point*> corners = {r->min, r->max, new Point(r->min->x, r->max->y), new Point(r->max->x, r->min->y)};
 
     for (auto corner : corners) {
-        double y = pow(RigidBody::pos->x - corner->x, 2);
-        double z = pow(RigidBody::pos->y - corner->y, 2);
-        if (radius > (y + z))
+        double xpos_to_corner = pow(RigidBody::pos->x - corner->x, 2);
+        double ypos_to_corner = pow(RigidBody::pos->y - corner->y, 2);
+        if (radius > (xpos_to_corner + ypos_to_corner))
             return true;
     }
 }
@@ -73,13 +75,13 @@ bool Circle::collides_with(Rectangle *r) {
 bool Circle::collides_with(Circle *c) {
     double r = radius + c->radius;
     r *= r;
-    double y = pow(pos->x - c->pos->x, 2);
-    double z = pow(pos->y - c->pos->y, 2);
-    return r > (y + z);
+    double x_dist = pow(pos->x - c->pos->x, 2);
+    double y_dist = pow(pos->y - c->pos->y, 2);
+    return r > (x_dist + y_dist);
 }
 
-void apply_force(RigidBody& rb, Vector f) {
-    rb.forces.push_back(f);
+void apply_force(RigidBody& rb, Vector force) {
+    rb.forces.push_back(force);
     rb.set_accel();
 }
 
@@ -102,11 +104,10 @@ bool scan_collision(RigidBody *a, RigidBody *b) {
     }
 }
 
-std::ostream& operator<<(std::ostream& os, RigidBody& rbd) {
-    std::string op = "pos[x: " + std::to_string(rbd.pos->x) + ", y: " + std::to_string(rbd.pos->y) + "]\nvel[x: " + \
-    std::to_string(rbd.vel->x_cmp) + ", y: " + std::to_string(rbd.vel->y_cmp) + ", abs: " + \
-    std::to_string(rbd.vel->mag) + "]";
-    os << op << std::endl;
+ostream& operator<<(ostream& os, RigidBody& rbd) {
+    string op = "pos[x: " + to_string(rbd.pos->x) + ", y: " + to_string(rbd.pos->y) + "]\nvel[x: " + \
+    to_string(rbd.vel->x_cmp) + ", y: " + to_string(rbd.vel->y_cmp) + ", abs: " + to_string(rbd.vel->mag) + "]";
+    os << op << endl;
     return os;
 }
 
