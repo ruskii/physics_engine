@@ -6,7 +6,6 @@ using namespace std;
 
 /* While simulation run time hasn't been reached, iterate through all RigidBodies
    and check for a collision with all other RigidBodies, and update positions as necessary
-*/
 void run_sim(vector<RigidBody*> rbds, int sim_time, int tick) {
     float current_time = 0;
 
@@ -28,8 +27,10 @@ void run_sim(vector<RigidBody*> rbds, int sim_time, int tick) {
         usleep(tick * 1000);
     }
 }
+*/
 
 int main() {
+    /*
     auto a = new Circle;
     a->set_vel(new Vector(new Point, new Point(1, 0)));
 
@@ -39,6 +40,7 @@ int main() {
     vector<RigidBody*> objects = {a, b, c};
 
     run_sim(objects, 20, 1);
+    */
 
     return 0;
 }
