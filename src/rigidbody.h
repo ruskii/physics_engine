@@ -24,7 +24,8 @@ struct RigidBody{
     std::vector<Vector> forces;          // stores all forces acting on particle
 
     void set_vel(Vector *v);
-    void set_accel();
+    void set_accel(Vector *a);
+    void update_accel();
     void sum_forces();
     Vector get_netforce() const;
     virtual bool collides_with(const Rectangle &r) const = 0;   // look into using constexpr

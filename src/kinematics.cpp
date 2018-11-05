@@ -4,11 +4,13 @@ using namespace std;
 
 void RigidBody::set_vel(Vector *v) {vel = v;}
 
-void RigidBody::set_accel() {
+void RigidBody::set_accel(Vector *a) {accel = a;}
+
+void RigidBody::update_accel() {
     sum_forces();
     auto netf = get_netforce();
     auto accel_head = new Point(netf.x_cmp / mass, netf.y_cmp / mass);
-    accel = new Vector(net_force.tail, accel_head);
+    set_accel(new Vector(net_force.tail, accel_head));
 }
 
 void RigidBody::sum_forces() {
@@ -87,7 +89,7 @@ bool Circle::collides_with(const Circle &c) const {
 
 void apply_force(RigidBody& rb, const Vector &force) {
     rb.forces.push_back(force);
-    rb.set_accel();
+    rb.update_accel();
 }
 
 void move(RigidBody& rb, float dt) {
