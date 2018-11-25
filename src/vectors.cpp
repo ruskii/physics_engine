@@ -52,10 +52,3 @@ Vector operator*(double scalar, const Vector& a) {
     return product;
 }
 
-ostream& operator<<(ostream& os, const Vector& vec) {
-    string op = "x: " + to_string(vec.head->x) + " y: " + to_string(vec.head->y) \
-    + "\nmag: " + to_string(vec.mag);
-    os << op << endl;
-    return os;
-}
-

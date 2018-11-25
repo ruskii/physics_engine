@@ -2,9 +2,10 @@
 #define PHYSICS_POINT_H
 
 struct Point {
-	Point() : x(0), y(0) {}
-	Point(double x, double y) : x(x), y(y) {};
-	double x, y;
+    explicit Point(double x = 0, double y = 0) : x(x), y(y) {};
+    double x, y;
+
+    bool operator==(const Point& other) const {return x == other.x and y == other.y;}
 };
 
 #endif

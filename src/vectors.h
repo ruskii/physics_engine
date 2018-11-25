@@ -6,8 +6,7 @@
 double magnitude(double x, double y);
 
 struct Vector {
-    Vector() : tail(new Point), head(new Point), x_cmp(0), y_cmp(0), mag(0) {}
-    Vector(Point *t, Point *h) : tail(t), head(h) {}
+    Vector(Point *t = new Point, Point *h = new Point) : tail(t), head(h) {}
     ~Vector() = default;
 
     Point *tail;
@@ -21,10 +20,9 @@ struct Vector {
 };
 
 Vector operator+(const Vector& a, const Vector& b);
-Vector operator+=(Vector& a, const Vector& b);      // make a const or non-const??
+Vector operator+=(Vector& a, const Vector& b);
 Vector operator-(const Vector& a, const Vector& b);
 Vector operator-=(Vector& a, const Vector& b);
 Vector operator*(double scalar, const Vector &a);
-std::ostream& operator<<(std::ostream& os, const Vector& vec);
 
 #endif

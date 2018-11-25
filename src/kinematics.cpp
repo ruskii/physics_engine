@@ -1,24 +1,30 @@
+#include <cmath>
+#include <iostream>
 #include "rigidbody.h"
 
 using namespace std;
 
-void RigidBody::set_vel(Vector *v) {vel = v;}
+void RigidBody::set_pos(Point *p) {pos = p;}
+
+void RigidBody::set_vel(Vector *v) {
+    vel = v;
+    vel->mag = magnitude(vel->x_cmp, vel->y_cmp);
+}
 
 void RigidBody::set_accel(Vector *a) {accel = a;}
 
 void RigidBody::update_accel() {
     sum_forces();
-    auto netf = get_netforce();
-    auto accel_head = new Point(netf.x_cmp / mass, netf.y_cmp / mass);
+    auto accel_head = new Point(net_force.x_cmp / mass, net_force.y_cmp / mass);
     set_accel(new Vector(net_force.tail, accel_head));
 }
 
-void RigidBody::sum_forces() {
+void RigidBody::sum_forces() {      // try with lambdas
     if (!forces.empty()) {
         net_force = forces[0];
 
         for (int i = 1; i < forces.size(); i++)
-            net_force = net_force + forces[i];
+            net_force += forces[i];     // need to test this
     }
 }
 
@@ -27,6 +33,11 @@ Vector RigidBody::get_netforce() const {return net_force;}
 void Rectangle::set_corners() {
     min = new Point(RigidBody::pos->x - length / 2, RigidBody::pos->y - width / 2);
     max = new Point(RigidBody::pos->x + length / 2, RigidBody::pos->y + width / 2);
+}
+
+void Rectangle::set_pos(Point *p) {
+    pos = p;
+    set_corners();
 }
 
 bool Rectangle::collides_with(const Rectangle &r) const {
@@ -57,7 +68,8 @@ bool Rectangle::collides_with(const Circle &c) const {
     } else return false;
 }
 
-bool Circle::collides_with(const Rectangle &r) const {
+bool Circle::collides_with(const Rectangle &r) const {  // must get rid of code duplication from above
+/*
     Rectangle aabb(2 * radius, 2 * radius, RigidBody::mass, RigidBody::pos, RigidBody::vel, RigidBody::accel);
 
     if (aabb.collides_with(r)) {
@@ -77,6 +89,8 @@ bool Circle::collides_with(const Rectangle &r) const {
         }
         return false;
     } else return false;
+*/
+    return r.collides_with(*this);
 }
 
 bool Circle::collides_with(const Circle &c) const {
@@ -93,31 +107,23 @@ void apply_force(RigidBody& rb, const Vector &force) {
 }
 
 void move(RigidBody& rb, float dt) {
-    rb.vel->x_cmp += rb.accel->x_cmp * dt;
-    rb.vel->y_cmp += rb.accel->y_cmp * dt;
-    rb.vel->mag = magnitude(rb.vel->x_cmp, rb.vel->y_cmp);
-    rb.pos->x += rb.vel->x_cmp * dt;
-    rb.pos->y += rb.vel->y_cmp * dt;
+    auto new_vel_x = rb.vel->x_cmp + rb.accel->x_cmp * dt;
+    auto new_vel_y = rb.vel->y_cmp + rb.accel->y_cmp * dt;
+    rb.set_vel(new Vector(rb.pos, new Point(new_vel_x, new_vel_y)));
 
-    if (auto rect = dynamic_cast<Rectangle*>(&rb))
-        rect->set_corners();
+    auto new_pos_x = rb.pos->x + rb.vel->x_cmp * dt;
+    auto new_pos_y = rb.pos->y + rb.vel->y_cmp * dt;
+    rb.set_pos(new Point(new_pos_x, new_pos_y));
 }
 
-bool scan_collision(const RigidBody &a, RigidBody &b) {
-    const auto b_rect = dynamic_cast<Rectangle*>(&b);
+bool scan_collision(const RigidBody &a, RigidBody &b) {     // find better way to call collide function
+    const auto rectangle = dynamic_cast<Rectangle*>(&b);
 
-    if (b_rect)
-        return a.collides_with(*b_rect);
+    if (rectangle)
+        return a.collides_with(*rectangle);
     else {
-        const auto b_circ = dynamic_cast<Circle*>(&b);
-        return a.collides_with(*b_circ);
+        const auto circle = dynamic_cast<Circle*>(&b);
+        return a.collides_with(*circle);
     }
-}
-
-ostream& operator<<(ostream& os, const RigidBody& rbd) {
-    string op = "pos[x: " + to_string(rbd.pos->x) + ", y: " + to_string(rbd.pos->y) + "]\nvel[x: " + \
-    to_string(rbd.vel->x_cmp) + ", y: " + to_string(rbd.vel->y_cmp) + ", abs: " + to_string(rbd.vel->mag) + "]";
-    os << op << endl;
-    return os;
 }
 

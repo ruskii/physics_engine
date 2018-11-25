@@ -114,8 +114,8 @@ TEST_CASE("Collision Detection") {
         Circle c2(10, 1, new Point(12, 12), new Vector, new Vector);
 
         REQUIRE( r1.collides_with(c1) );
-        REQUIRE( !r1.collides_with(c2) );
         REQUIRE( c1.collides_with(r1) );
+        REQUIRE( !r1.collides_with(c2) );
         REQUIRE( !c2.collides_with(r1) );
     }
 
@@ -143,5 +143,4 @@ TEST_CASE("Applying force", "[force]") {
     REQUIRE( netf.x_cmp == 2 );
     REQUIRE( netf.y_cmp == 0 );
 }
-
 
