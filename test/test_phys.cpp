@@ -1,9 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "../src/rigidbody.h"
-
-
-// TODO: create tests for all methods and functions, sections for different scenarios
+#include "../src/projectile.h"
 
 TEST_CASE("Point initialization", "[point]") {
     Point origin;
@@ -18,129 +15,145 @@ TEST_CASE("Point initialization", "[point]") {
 }
 
 TEST_CASE("Vector arithmetic", "[vector]") {
-    
-    SECTION("Test magnitude") {
-        for (int x = -5; x <= 5; x += 10) {
-            for (int y = -5; y <= 5; y += 10) {
-                Vector vec(new Point, new Point(x, y));
-                REQUIRE(vec.get_mag() == sqrt(50));
-            }
-        }
+    SECTION("Magnitude") {
+        REQUIRE( magnitude(0, 0) == 0.0 );
+        REQUIRE( magnitude(3, 4) == 5.0 );
     }
 
-    Vector right(new Point, new Point(1, 0));
-    Vector left(new Point, new Point(-1, 0));
-    Vector up(new Point, new Point(0, 1));
-    Vector down(new Point, new Point(0, -1));
-
-    Vector right_2(new Point, new Point(2, 0));
-    Vector left_2(new Point, new Point(-2, 0));
-    Vector up_2(new Point, new Point(0, 2));
-
-    Vector right_up(new Point, new Point(1, 1));
-    Vector right_down(new Point, new Point(1, -1));
-    Vector left_down(new Point, new Point(-1, -1));
-    Vector zero_vec;
-
-    SECTION("Test addition") {
-        REQUIRE( right + left == zero_vec );
-        REQUIRE( right + up == right_up );
-        REQUIRE( right_up + left_down == zero_vec );
+    SECTION("Determinant") {
+        REQUIRE( determinant(1, 2, 3, 4) == -2.0 );
+        REQUIRE( determinant(3, 3, 3, 3) == 0.0 );
     }
 
-    SECTION("Test subtraction") {
-        REQUIRE( right - right == zero_vec );
-        REQUIRE( right - left == right_2 );
-        REQUIRE( right - up == right_down );
+    SECTION("Dot product") {
+        Vector a(new Point, new Point(5, 1));
+        Vector b(new Point, new Point(1, 5));
+
+        REQUIRE( dot(a, b) == 10.0 );
     }
 
-    SECTION("Test scalar") {
-        REQUIRE( 2 * right == right_2 );
-        REQUIRE( 2 * up == up_2 );
-        REQUIRE( -2 * down == up_2 );
-    }
+    SECTION("Normals and normalization") {
+        Vector a(new Point, new Point(3, 4));
+        auto norm = a.normal();
 
-    SECTION("Test increment") {
-        right += left;
-        REQUIRE( right == zero_vec );
-
-        up += up;
-        REQUIRE( up == up_2 );
-    }
-
-    SECTION("Test decrement") {
-        left -= right;
-        REQUIRE( left == left_2 );
-
-        up -= down;
-        REQUIRE( up == up_2 );
+        REQUIRE( norm == Vector(new Point, new Point(-4, 3)) );
+        double expected = 5.0 / 5.0;
+        REQUIRE( norm.unit().mag == expected);
     }
 }
 
-TEST_CASE("Position is verified", "[position]") {
-    Rectangle rect(2, 2, 5, new Point(5, 5), new Vector, new Vector);
+TEST_CASE("Vector overlapping", "[vector]") {
+    SECTION("General pass/no pass") {
+        Vector a(new Point, new Point(5, 5));
+        Vector b(new Point(5, 0), new Point(0, 5));
 
-    REQUIRE( rect.pos->x == 5 );
-    REQUIRE( rect.pos->y == 5 );
+        REQUIRE( overlap(a, b) );
 
-    Circle circ(3, 4, new Point(3, 4), new Vector, new Vector);
+        Vector c(new Point, new Point(5, 5));
+        Vector d(new Point(6, 6), new Point(6, 0));
 
-    REQUIRE( circ.pos->x == 3 );
-    REQUIRE( circ.pos->y == 4 );
+        REQUIRE( !overlap(c, d) );
+    }
+
+    SECTION("Colinear special cases") {
+        Vector a(new Point, new Point(5, 0));
+        Vector b(new Point(3, 0), new Point(8, 0));
+        Vector c(new Point(8, 0), new Point(3, 0));
+        Vector d(new Point(2, 0), new Point(-3, 0));
+        Vector e(new Point(-3, 0), new Point(2, 0));
+
+        REQUIRE( overlap(a, b) );
+        REQUIRE( overlap(a, c) );
+        REQUIRE( overlap(d, a) );
+        REQUIRE( overlap(e, a) );
+    }
 }
 
-TEST_CASE("Velocity is verified", "[velocity]") {
-    Rectangle rect(2, 2, 5, new Point, new Vector(new Point, new Point(3, 4)), new Vector);
+TEST_CASE("Constructing Polygons") {
+    SECTION("init by vertices") {
+        auto bottom_right = new Point(2, -2);
+        auto bottom_left = new Point(-2, -2);
+        auto top_left = new Point(-2, 2);
+        auto top_right = new Point(2, 2);
 
-    REQUIRE( rect.vel->x_cmp == 3 );
-    REQUIRE( rect.vel->y_cmp == 4 );
+        std::vector<Point*> verts = {bottom_right, bottom_left, top_left, top_right};
+
+        Polygon square(verts);
+
+        REQUIRE( *square.pos == *new Point );
+
+        auto p0 = new Point(3, 0);
+        auto p1 = new Point(0, 3);
+        auto p2 = new Point(0, 6);
+        auto p3 = new Point(3, 9);
+        auto p4 = new Point(6, 9);
+        auto p5 = new Point(9, 6);
+        auto p6 = new Point(9, 3);
+        auto p7 = new Point(6, 0);
+
+        std::vector<Point*> oct_verts = {p0, p1, p2, p3, p4, p5, p6, p7};
+
+        Polygon octagon(oct_verts);
+
+        REQUIRE( *octagon.pos == *new Point(4.5, 4.5) );
+    }
+
+    SECTION("init by position") {
+        Polygon square(new Point, 4, 4);
+
+        REQUIRE( square.is_upright() );
+
+        Polygon octagon(new Point, 8, 4);
+
+        REQUIRE( octagon.is_upright() );
+
+        Polygon triangle(new Point, 3, 4);
+
+        REQUIRE( triangle.is_upright() );
+
+        Polygon segment(new Point, 2, 3);
+
+        REQUIRE( segment.is_upright() );
+    }
 }
 
 TEST_CASE("Collision Detection") {
+    SECTION("Polygon v Polygon") {
+        auto p0 = new Point;
+        auto p1 = new Point(1, 1);
+        auto p2 = new Point(1, 0);
 
-    SECTION("Rectangle Rectangle") {
-        Rectangle a(4, 4, 1, new Point, new Vector, new Vector);
-        Rectangle b(3, 3, 1, new Point(3, 0), new Vector, new Vector);
-        Rectangle c(3, 3, 1, new Point(-1, 3), new Vector, new Vector);
+        std::vector<Point*> triplet = {p0, p1, p2};
+        Polygon triangle(triplet);
 
-        REQUIRE( a.collides_with(b) );
-        REQUIRE( a.collides_with(c) );
-        REQUIRE( !b.collides_with(c) );
+        Polygon square(new Point(1.5, -0.5), 4, 2);
+
+        REQUIRE( collision(triangle, square) );
+
+        Polygon square2(new Point(5, 5));
+
+        REQUIRE( !collision(square, square2) );
     }
 
-    SECTION("Rectangle Circle") {
-        Rectangle r1(6, 6, 1, new Point, new Vector, new Vector);
-        Circle c1(4, 1, new Point(4, 0), new Vector, new Vector);
-        Circle c2(10, 1, new Point(12, 12), new Vector, new Vector);
+    SECTION("Circle v Polygon") {
+        Circle circle(new Point(3, 3), 3);
+        Polygon square(new Point(4, 4), 4, 2);
 
-        REQUIRE( r1.collides_with(c1) );
-        REQUIRE( c1.collides_with(r1) );
-        REQUIRE( !r1.collides_with(c2) );
-        REQUIRE( !c2.collides_with(r1) );
-    }
+        auto collided = collision(square, circle);
 
-    SECTION("Circle Circle") {
-        Circle a(4, 1, new Point, new Vector, new Vector);
-        Circle b(2, 1, new Point(5, 0), new Vector, new Vector);
-        Circle c(2, 1, new Point(0, 5), new Vector, new Vector);
+        REQUIRE( collided );
 
-        REQUIRE( a.collides_with(b) );
-        REQUIRE( a.collides_with(c) );
-        REQUIRE( !b.collides_with(c) );
+        auto p0 = new Point(2, 0);
+        auto p1 = new Point(3, 3);
+        auto p2 = new Point(4, 0);
+
+        std::vector<Point*> triplet = {p0, p1, p2};
+        Polygon triangle(triplet);
+
+        REQUIRE( collision(triangle, circle) );
+
+        Polygon square2(new Point(8, 8));
+
+        REQUIRE( !collision(square2, circle) );
     }
 }
-
-TEST_CASE("Applying force", "[force]") {
-    Rectangle rect(4, 2, 3, new Point, new Vector, new Vector);
-    Vector f1(new Point, new Point(5, 0));
-    Vector f2(new Point, new Point(-3, 0));
-
-    apply_force(rect, f1);
-    apply_force(rect, f2);
-
-    auto netf = rect.get_netforce();
-
-    REQUIRE( netf.x_cmp == 2 );
-    REQUIRE( netf.y_cmp == 0 );
-}
-

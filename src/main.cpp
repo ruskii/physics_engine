@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "rigidbody.h"
+#include "projectile.h"
 
 using namespace std;
 

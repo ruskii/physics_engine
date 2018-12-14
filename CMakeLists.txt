@@ -7,9 +7,8 @@ include_directories(${Physics_SOURCE_DIR}/src
 
 set(Physics_SOURCES
     ${Physics_SOURCE_DIR}/src/vectors.cpp
-    ${Physics_SOURCE_DIR}/src/kinematics.cpp
-    ${Physics_SOURCE_DIR}/src/rigidbody.h
-    ${Physics_SOURCE_DIR}/src/point.h)
+    ${Physics_SOURCE_DIR}/src/polygon.cpp
+    ${Physics_SOURCE_DIR}/src/projectile.cpp)
 
 set(Test_SOURCES
     ${Physics_SOURCES}
