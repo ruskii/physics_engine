@@ -11,17 +11,19 @@
 using namespace std;
 using namespace boost::geometry;
 
-Polygon::Polygon(vector<Point*> &verts) : vertices(verts), num_vertices(int(verts.size())) {
+Polygon::Polygon(vector<Point*> &verts) : vertices(verts), num_vertices(int(verts.size())), orientation(0) {
     construct_edges();
     construct_centroid();
 }
 
-Polygon::Polygon(Point *p, int nv, double rad) : pos(p), num_vertices(nv), radius(rad) {
+Polygon::Polygon(Point *p, int nv, double rad, double ort) : pos(p), num_vertices(nv), radius(rad), orientation(ort) {
     if (nv > 0) {
         construct_verts();
 
-        if (!is_upright())
-            set_upright();
+        if (orientation == 0 and !is_upright()) // if no given orientation and not upright, set upright at 270 degrees
+            rotate(270);
+        else
+            rotate(orientation);
 
         construct_edges();
     }
@@ -33,7 +35,7 @@ void Polygon::construct_edges() {
         Vector edge(vertices[i], end_point);
 
         edges.push_back(edge);
-        auto norm = edge.normal().unit();
+        auto norm = edge.normal();
         axes.push_back(norm);
     }
 }
@@ -66,16 +68,30 @@ void Polygon::construct_verts() {   // TODO: try with different num_vertices
 }
 
 bool Polygon::is_upright() {
+    if (!num_vertices)
+        return true;
+
     vector<Point*>::iterator vert;
 
     for (vert = vertices.begin(); vert < vertices.end() - 1; vert++) {
         Vector face(*vert, *(vert + 1));
         auto face_norm = face.normal();
 
-        if (face_norm.x_cmp == 0 and face_norm.y_cmp < 0)
+        if (face_norm.x_cmp == 0 and face_norm.y_cmp != 0)
             return true;
     }
     return false;
+}
+
+void Polygon::shift(const Vector& vec, float dt) {
+    pos->x += vec.x_cmp * dt;
+    pos->y += vec.y_cmp * dt;
+
+    for (auto vert : vertices) {
+        (*vert).x += vec.x_cmp * dt;
+        (*vert).y += vec.y_cmp * dt;
+    }
+    construct_edges();
 }
 
 double find_direction(double x, double y) {
@@ -84,20 +100,23 @@ double find_direction(double x, double y) {
     return direction;
 }
 
-void Polygon::set_upright() {
-    Vector segment(vertices[0], vertices[1]);
-    auto seg_norm = segment.normal();
+void Polygon::rotate(double angle, bool rotate_by) {
+    if (num_vertices > 1) {
+        auto compass_head = midpoint(*vertices[0], *vertices[1]);
+        Vector compass(pos, compass_head);
 
-    double seg_dir = find_direction(seg_norm.x_cmp, seg_norm.y_cmp);
-    double angle_offset = -(seg_dir - 270.0);
+        double compass_dir = find_direction(compass.x_cmp, compass.y_cmp);
+        double rotation = (rotate_by) ? angle : -(compass_dir - angle);
+        orientation = rotation;
 
-    vector<Point*>::iterator vert;
-    for (vert = vertices.begin(); vert < vertices.end(); vert++) {
-        Vector needle(pos, *vert);
-        auto vert_direction = find_direction(needle.x_cmp, needle.y_cmp);
-        auto target_direction = vert_direction + angle_offset;
-        auto target_point = relative_spawn_point(target_direction, pos, radius);
-        *vert = target_point;
+        vector<Point*>::iterator vert;
+        for (vert = vertices.begin(); vert < vertices.end(); vert++) {
+            Vector needle(pos, *vert);
+            auto vert_direction = find_direction(needle.x_cmp, needle.y_cmp);
+            auto target_direction = vert_direction + rotation;
+            auto target_point = relative_spawn_point(target_direction, pos, radius);
+            *vert = target_point;
+        }
     }
 }
 

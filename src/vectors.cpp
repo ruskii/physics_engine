@@ -12,18 +12,16 @@ double determinant(double a, double b, double c, double d) {
 }
 
 bool Vector::operator==(const Vector& other) const {
-    if (mag != other.mag)
-        return false;
     return x_cmp == other.x_cmp and y_cmp == other.y_cmp;
 }
 
-Vector Vector::unit() const {
+Vector Vector::normal() const {
     auto inverse = 1 / mag;
-    Vector unit_vector = inverse * (*this);
-    return unit_vector;
+    Vector normalized = inverse * (this->perpendicular());
+    return normalized;
 }
 
-Vector Vector::normal() const {
+Vector Vector::perpendicular() const {
     auto normal_tail = midpoint(*tail, *head);
     auto normal_head = new Point(normal_tail->x - y_cmp, normal_tail->y + x_cmp);
     Vector norm(normal_tail, normal_head);
@@ -59,9 +57,11 @@ bool overlap(const Vector& a, const Vector& b) {
     auto orient3 = point_orientation(b.tail, b.head, a.tail);
     auto orient4 = point_orientation(b.tail, b.head, a.head);
 
+    // general case
     if (orient1 != orient2 and orient3 != orient4)
         return true;
 
+    // special colinear cases
     if (orient1 == 0 and colinear_intersection(a.tail, b.tail, a.head)) return true;
 
     if (orient2 == 0 and colinear_intersection(a.tail, b.head, a.head)) return true;

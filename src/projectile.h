@@ -5,29 +5,21 @@
 #include "polygon.h"
 
 struct RigidBody {
-    explicit RigidBody(Polygon& poly, Point *p = nullptr, double ort=0, double av=0, double tq=0) : \
-        shape(poly), pos(p), orientation(ort), angular_vel(av), torque(tq) {}
+    explicit RigidBody(Polygon& poly, double av = 0, double tq = 0, \
+        double m = 1, Vector *v = new Vector, Vector *a = new Vector) : \
+        shape(poly), mass(m), angular_vel(av), torque(tq), vel(v), accel(a) {}
 
-    Point *pos;
     Polygon shape;
-    double orientation;     // radians
+    double mass;
     double angular_vel;
     double torque;
-};
-
-struct Projectile : RigidBody {
-    explicit Projectile(Polygon& poly, Point *p, double ort, double av, double tq, \
-        double m = 1, Vector *v = new Vector, Vector *a = new Vector) : \
-        RigidBody(poly, p, ort, av, tq), mass(m), vel(v), accel(a) {}
-
-    double mass;
     Vector *vel;
     Vector *accel;
     Vector net_force;
-    std::vector<Vector> forces;
+    std::vector<Vector> forces; // all forces acting on rigidbody
 
-    void update_accel();
-    void sum_forces();
+    void update_accel();    // update acceleration based on netforce
+    void sum_forces();  // sum all forces acting on rigidbody to obtain netforce
 };
 
 #endif

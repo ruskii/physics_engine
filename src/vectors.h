@@ -17,14 +17,14 @@ struct Vector {
     double mag = magnitude(x_cmp, y_cmp);
 
     bool operator==(const Vector& other) const;
-    Vector unit() const;
-    Vector normal() const;
+    Vector normal() const;  // normalized perpendicular
+    Vector perpendicular() const;
 };
 
-double dot(const Vector& a, const Vector& b);
-bool colinear_intersection(const Point *p, const Point *q, const Point *r);
-int point_orientation(const Point *p, const Point *q, const Point *r);
-bool overlap(const Vector& a, const Vector& b);
+double dot(const Vector& a, const Vector& b);   // dot product of 2 vectors
+bool colinear_intersection(const Point *p, const Point *q, const Point *r); // checking if 2 lines are colinear
+int point_orientation(const Point *p, const Point *q, const Point *r);  // orientation of 3 points on belonging to 2 lines
+bool overlap(const Vector& a, const Vector& b); // check for overlapping lines
 Vector operator+(const Vector& a, const Vector& b);
 Vector operator+=(Vector& a, const Vector& b);
 Vector operator-(const Vector& a, const Vector& b);

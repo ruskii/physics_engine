@@ -34,11 +34,11 @@ TEST_CASE("Vector arithmetic", "[vector]") {
 
     SECTION("Normals and normalization") {
         Vector a(new Point, new Point(3, 4));
-        auto norm = a.normal();
+        auto perp = a.perpendicular();
 
-        REQUIRE( norm == Vector(new Point, new Point(-4, 3)) );
+        REQUIRE( perp == Vector(new Point, new Point(-4, 3)) );
         double expected = 5.0 / 5.0;
-        REQUIRE( norm.unit().mag == expected);
+        REQUIRE( a.normal().mag == expected);
     }
 }
 
